@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Binary Bingo Caller</title>
+  <style>
+    :root{
+      --bg:#0b1020;          /* deep navy */
+      --ink:#e9f2ff;         /* soft white */
+      --muted:#9fb3d2;       /* slate */
+      --accent:#6ee7ff;      /* cyan */
+      --accent-2:#7cff7a;    /* green */
+      --danger:#ff6b6b;      /* coral */
+      --card:#121933;        /* card bg */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink); background:radial-gradient(1200px 800px at 20% 0%, #10183a 0, #0b1020 60%);
+      display:flex; flex-direction:column; gap:16px; padding:16px;
+    }
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+    header h1{font-size:clamp(20px,3vw,28px); margin:0; letter-spacing:.5px; color:var(--accent)}
+    .controls{
+      display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:var(--card); border-radius:16px; padding:10px 12px; box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .seg{
+      display:flex; align-items:center; gap:8px; padding:8px 10px; background:#0d1430; border-radius:12px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .mode button{
+      font-size:16px; padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:#0e1736; color:var(--ink); cursor:pointer; transition:transform .03s ease;
+    }
+    .mode button.active{outline:2px solid var(--accent); background:#0a2240;}
+    .mode button:active{transform:translateY(1px)}
+
+    .timer {
+      display:flex; align-items:center; gap:10px;
+    }
+    .timer input[type="range"]{ width:200px; }
+    .timer .val{min-width:3ch; text-align:right; color:var(--accent-2); font-variant-numeric:tabular-nums;}
+
+    .actions button{
+      font-size:18px; padding:12px 18px; border-radius:14px; border:1px solid rgba(255,255,255,.12); background:#0e1736; color:var(--ink); cursor:pointer; letter-spacing:.2px;
+    }
+    .actions button.primary{background:linear-gradient(180deg, #133c7a, #0f2d5a); border-color:#1b4890}
+    .actions button.warn{background:linear-gradient(180deg, #6b1f29, #4a141a); border-color:#a33c45}
+    .actions button:disabled{opacity:.5; cursor:not-allowed}
+
+    main{
+      display:grid; grid-template-columns:1fr 380px; gap:16px; flex:1; min-height:0;
+    }
+    @media (max-width: 980px){
+      main{ grid-template-columns:1fr; }
+    }
+
+    .stage{
+      background:linear-gradient(160deg, rgba(255,255,255,.03), rgba(255,255,255,0) 40%), #0c132b;
+      border-radius:20px; box-shadow:0 14px 50px rgba(0,0,0,.35) inset;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:20px;
+    }
+    .big-num{ font-size:clamp(80px, 18vw, 220px); line-height:1; margin:0; letter-spacing:1px; text-shadow:0 6px 30px rgba(0,0,0,.35); }
+    .sub{
+      display:flex; gap:22px; flex-wrap:wrap; align-items:center; justify-content:center; color:var(--muted);
+      font-size:clamp(16px, 2.6vw, 24px);
+    }
+    .sub .label{opacity:.9}
+    .sub .val{color:var(--accent-2); font-variant-numeric:tabular-nums}
+
+    .sidebar{
+      background:var(--card); border-radius:20px; padding:16px; display:flex; flex-direction:column; gap:12px; min-height:0;
+    }
+    .sidebar h2{margin:0; font-size:18px; color:var(--muted); letter-spacing:.3px}
+    .called{
+      display:flex; flex-wrap:wrap; gap:8px; overflow:auto; padding:2px; align-content:flex-start;
+    }
+    .pill{
+      padding:10px 12px; border-radius:999px; background:#0e1736; border:1px solid rgba(255,255,255,.08); color:var(--ink); font-size:18px; font-variant-numeric:tabular-nums;
+    }
+    .meta{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px}
+    .meta .dot{width:8px; height:8px; border-radius:50%; background:var(--accent)}
+
+    .footer{
+      display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--muted); font-size:14px; padding:0 4px;
+    }
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#0e1736; border:1px solid rgba(255,255,255,.18); padding:2px 6px; border-radius:6px; color:var(--ink)}
+
+    .fs-btn{border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:14px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Binary Bingo Caller</h1>
+    <div class="controls">
+      <div class="seg mode" role="group" aria-label="bit mode">
+        <button id="btn5" class="active" aria-pressed="true">5‑bit (3–31)</button>
+        <button id="btn6" aria-pressed="false">6‑bit (3–63)</button>
+      </div>
+      <div class="seg timer">
+        <span class="label">Timer:</span>
+        <input id="timerRange" type="range" min="10" max="90" step="5" value="30" aria-label="seconds" />
+        <span class="val"><span id="timerVal">30</span>s</span>
+      </div>
+      <div class="seg actions">
+        <button id="startStop" class="primary">Start</button>
+        <button id="nextNow">Next Now</button>
+        <button id="reset" class="warn">Reset</button>
+      </div>
+      <div class="seg meta" title="Numbers remaining in this set">
+        <span class="dot"></span>
+        <span><strong id="remaining">29</strong> left</span>
+      </div>
+      <button id="fs" class="fs-btn" title="Toggle fullscreen">⛶</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage" aria-live="polite">
+      <h2 class="big-num" id="current">—</h2>
+      <div class="sub">
+        <div><span class="label">Mode:</span> <span class="val" id="modeLabel">5‑bit</span></div>
+        <div><span class="label">Interval:</span> <span class="val" id="intervalLabel">30s</span></div>
+        <div><span class="label">Draws:</span> <span class="val" id="drawCount">0</span></div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <h2>Called Numbers</h2>
+      <div id="called" class="called" aria-live="polite"></div>
+      <div class="footer">
+        <div>Tip: <span class="kbd">Space</span> start/stop · <span class="kbd">N</span> next · <span class="kbd">R</span> reset · <span class="kbd">5</span>/<span class="kbd">6</span> mode</div>
+        <div id="status"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // --- State ---
+    const state = {
+      bits: 5,
+      min: 3,
+      max: 31,
+      deck: [],
+      idx: -1,
+      called: [],
+      running: false,
+      intervalSec: 30,
+      countdown: 30,
+      timerId: null,
+    };
+
+    // --- Elements ---
+    const el = {
+      btn5: document.getElementById('btn5'),
+      btn6: document.getElementById('btn6'),
+      timerRange: document.getElementById('timerRange'),
+      timerVal: document.getElementById('timerVal'),
+      startStop: document.getElementById('startStop'),
+      nextNow: document.getElementById('nextNow'),
+      reset: document.getElementById('reset'),
+      current: document.getElementById('current'),
+      called: document.getElementById('called'),
+      remaining: document.getElementById('remaining'),
+      drawCount: document.getElementById('drawCount'),
+      modeLabel: document.getElementById('modeLabel'),
+      intervalLabel: document.getElementById('intervalLabel'),
+      status: document.getElementById('status'),
+      fs: document.getElementById('fs'),
+      stage: document.getElementById('stage'),
+    };
+
+    // --- Helpers ---
+    function makeDeck(min, max){
+      const arr = [];
+      for(let i=min; i<=max; i++) arr.push(i);
+      // Fisher-Yates shuffle
+      for(let i=arr.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function beep(){
+      // quick, subtle beep using Web Audio API
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine'; o.frequency.value = 880; // A5
+        g.gain.value = 0.0001; // avoid loudness
+        o.start();
+        const now = ctx.currentTime;
+        g.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+        o.stop(now + 0.28);
+        setTimeout(()=>ctx.close(), 350);
+      }catch(e){ /* ignore */ }
+    }
+
+    function updateUI(){
+      el.timerVal.textContent = state.intervalSec;
+      el.intervalLabel.textContent = state.intervalSec + 's';
+      el.modeLabel.textContent = state.bits + '\u200A-bit';
+      const left = Math.max(state.deck.length - (state.idx+1), 0);
+      el.remaining.textContent = left;
+      el.drawCount.textContent = state.called.length;
+      el.startStop.textContent = state.running ? `Pause (${state.countdown}s)` : 'Start';
+      el.stage.style.outline = state.running ? '3px solid rgba(126, 255, 154, .25)' : 'none';
+    }
+
+    function renderCalled(){
+      el.called.innerHTML = '';
+      for(const n of state.called){
+        const span = document.createElement('span');
+        span.className = 'pill';
+        span.textContent = n;
+        el.called.appendChild(span);
+      }
+      el.called.scrollTop = el.called.scrollHeight;
+    }
+
+    function drawNext(){
+      if(state.idx+1 >= state.deck.length){
+        // exhausted — rebuild deck excluding already-called numbers? We'll just reshuffle fresh
+        state.deck = makeDeck(state.min, state.max);
+        state.idx = -1;
+        state.called = [];
+        renderCalled();
+        setStatus('Deck exhausted. Reshuffled!');
+      }
+      state.idx++;
+      const n = state.deck[state.idx];
+      state.called.push(n);
+      el.current.textContent = n;
+      renderCalled();
+      updateUI();
+      beep();
+    }
+
+    function setStatus(msg){
+      el.status.textContent = msg;
+      if(msg){ setTimeout(()=>{ if(el.status.textContent===msg) el.status.textContent=''; }, 4000); }
+    }
+
+    function stop(){
+      state.running = false;
+      if(state.timerId) clearInterval(state.timerId);
+      state.timerId = null;
+      updateUI();
+    }
+
+    function start(){
+      state.running = true;
+      state.countdown = state.intervalSec;
+      updateUI();
+      if(state.idx < 0) drawNext();
+      if(state.timerId) clearInterval(state.timerId);
+      state.timerId = setInterval(()=>{
+        state.countdown--;
+        el.startStop.textContent = `Pause (${state.countdown}s)`;
+        if(state.countdown <= 0){
+          drawNext();
+          state.countdown = state.intervalSec;
+        }
+      }, 1000);
+    }
+
+    function reset(modeChanged=false){
+      state.idx = -1;
+      state.called = [];
+      el.current.textContent = '—';
+      renderCalled();
+      state.deck = makeDeck(state.min, state.max);
+      state.countdown = state.intervalSec;
+      updateUI();
+      setStatus(modeChanged ? 'Mode changed and deck reset.' : 'Reset.');
+    }
+
+    function setMode(bits){
+      if(bits === state.bits) return;
+      state.bits = bits;
+      if(bits === 5){ state.min = 3; state.max = 31; state.intervalSec = 30; el.timerRange.value = 30; }
+      else { state.min = 3; state.max = 63; state.intervalSec = 45; el.timerRange.value = 45; }
+      el.btn5.classList.toggle('active', bits===5);
+      el.btn6.classList.toggle('active', bits===6);
+      el.btn5.setAttribute('aria-pressed', bits===5);
+      el.btn6.setAttribute('aria-pressed', bits===6);
+      reset(true);
+    }
+
+    // --- Events ---
+    el.btn5.addEventListener('click', ()=> setMode(5));
+    el.btn6.addEventListener('click', ()=> setMode(6));
+
+    el.timerRange.addEventListener('input', (e)=>{
+      state.intervalSec = Number(e.target.value);
+      state.countdown = state.intervalSec;
+      updateUI();
+    });
+
+    el.startStop.addEventListener('click', ()=>{
+      if(state.running) stop(); else start();
+    });
+
+    el.nextNow.addEventListener('click', ()=>{
+      drawNext();
+      // restart the countdown if running
+      if(state.running){ state.countdown = state.intervalSec; updateUI(); }
+    });
+
+    el.reset.addEventListener('click', ()=>{
+      stop();
+      reset();
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+      if(e.key === ' '){ e.preventDefault(); state.running ? stop() : start(); }
+      if(e.key.toLowerCase() === 'n'){ e.preventDefault(); el.nextNow.click(); }
+      if(e.key.toLowerCase() === 'r'){ e.preventDefault(); el.reset.click(); }
+      if(e.key === '5'){ setMode(5); }
+      if(e.key === '6'){ setMode(6); }
+      if(e.key === 'f'){ toggleFullscreen(); }
+    });
+
+    function toggleFullscreen(){
+      const doc = document;
+      if(!doc.fullscreenElement){
+        (document.documentElement.requestFullscreen || document.body.requestFullscreen || document.documentElement.webkitRequestFullscreen).call(document.documentElement);
+      }else{
+        (doc.exitFullscreen || doc.webkitExitFullscreen || (()=>{})).call(doc);
+      }
+    }
+    el.fs.addEventListener('click', toggleFullscreen);
+
+    // --- Init ---
+    reset();
+  </script>
+</body>
+</html>
