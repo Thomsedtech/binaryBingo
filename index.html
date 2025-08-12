@@ -36,9 +36,7 @@
     .mode button.active{outline:2px solid var(--accent); background:#0a2240;}
     .mode button:active{transform:translateY(1px)}
 
-    .timer {
-      display:flex; align-items:center; gap:10px;
-    }
+    .timer { display:flex; align-items:center; gap:10px; }
     .timer input[type="range"]{ width:200px; }
     .timer .val{min-width:3ch; text-align:right; color:var(--accent-2); font-variant-numeric:tabular-nums;}
 
@@ -49,12 +47,12 @@
     .actions button.warn{background:linear-gradient(180deg, #6b1f29, #4a141a); border-color:#a33c45}
     .actions button:disabled{opacity:.5; cursor:not-allowed}
 
-    main{
-      display:grid; grid-template-columns:1fr 380px; gap:16px; flex:1; min-height:0;
-    }
-    @media (max-width: 980px){
-      main{ grid-template-columns:1fr; }
-    }
+    .toggles{ display:flex; gap:12px; align-items:center; }
+    .toggle{ display:flex; gap:6px; align-items:center; font-size:14px; color:var(--muted); }
+    .toggle input{ accent-color:#69f; width:18px; height:18px; }
+
+    main{ display:grid; grid-template-columns:1fr 380px; gap:16px; flex:1; min-height:0; }
+    @media (max-width: 980px){ main{ grid-template-columns:1fr; } }
 
     .stage{
       background:linear-gradient(160deg, rgba(255,255,255,.03), rgba(255,255,255,0) 40%), #0c132b;
@@ -69,22 +67,15 @@
     .sub .label{opacity:.9}
     .sub .val{color:var(--accent-2); font-variant-numeric:tabular-nums}
 
-    .sidebar{
-      background:var(--card); border-radius:20px; padding:16px; display:flex; flex-direction:column; gap:12px; min-height:0;
-    }
+    .sidebar{ background:var(--card); border-radius:20px; padding:16px; display:flex; flex-direction:column; gap:12px; min-height:0; }
     .sidebar h2{margin:0; font-size:18px; color:var(--muted); letter-spacing:.3px}
-    .called{
-      display:flex; flex-wrap:wrap; gap:8px; overflow:auto; padding:2px; align-content:flex-start;
-    }
-    .pill{
-      padding:10px 12px; border-radius:999px; background:#0e1736; border:1px solid rgba(255,255,255,.08); color:var(--ink); font-size:18px; font-variant-numeric:tabular-nums;
-    }
+    .called{ display:flex; flex-wrap:wrap; gap:8px; overflow:auto; padding:2px; align-content:flex-start; }
+    .pill{ padding:10px 12px; border-radius:999px; background:#0e1736; border:1px solid rgba(255,255,255,.08); color:var(--ink); font-size:18px; font-variant-numeric:tabular-nums; }
+    .pill small{ color:var(--muted); margin-left:6px; font-size:.8em; }
     .meta{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px}
     .meta .dot{width:8px; height:8px; border-radius:50%; background:var(--accent)}
 
-    .footer{
-      display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--muted); font-size:14px; padding:0 4px;
-    }
+    .footer{ display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--muted); font-size:14px; padding:0 4px; }
     .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#0e1736; border:1px solid rgba(255,255,255,.18); padding:2px 6px; border-radius:6px; color:var(--ink)}
 
     .fs-btn{border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:14px}
@@ -108,6 +99,11 @@
         <button id="nextNow">Next Now</button>
         <button id="reset" class="warn">Reset</button>
       </div>
+      <div class="seg toggles" aria-label="options">
+        <label class="toggle" title="If on, a new number is drawn automatically when the timer hits 0."><input type="checkbox" id="autoAdvance" checked> Auto‑advance</label>
+        <label class="toggle"><input type="checkbox" id="mute"> Mute</label>
+        <label class="toggle"><input type="checkbox" id="showBinary"> Show binary in history</label>
+      </div>
       <div class="seg meta" title="Numbers remaining in this set">
         <span class="dot"></span>
         <span><strong id="remaining">29</strong> left</span>
@@ -130,7 +126,7 @@
       <h2>Called Numbers</h2>
       <div id="called" class="called" aria-live="polite"></div>
       <div class="footer">
-        <div>Tip: <span class="kbd">Space</span> start/stop · <span class="kbd">N</span> next · <span class="kbd">R</span> reset · <span class="kbd">5</span>/<span class="kbd">6</span> mode</div>
+        <div>Tip: <span class="kbd">Space</span> start/stop · <span class="kbd">N</span> next · <span class="kbd">R</span> reset · <span class="kbd">5</span>/<span class="kbd">6</span> mode · <span class="kbd">F</span> fullscreen</div>
         <div id="status"></div>
       </div>
     </aside>
@@ -149,6 +145,9 @@
       intervalSec: 30,
       countdown: 30,
       timerId: null,
+      autoAdvance: true,
+      muted: false,
+      showBinary: false,
     };
 
     // --- Elements ---
@@ -169,6 +168,9 @@
       status: document.getElementById('status'),
       fs: document.getElementById('fs'),
       stage: document.getElementById('stage'),
+      autoAdvance: document.getElementById('autoAdvance'),
+      mute: document.getElementById('mute'),
+      showBinary: document.getElementById('showBinary'),
     };
 
     // --- Helpers ---
@@ -183,8 +185,12 @@
       return arr;
     }
 
+    function toBin(n, bits){
+      return n.toString(2).padStart(bits, '0');
+    }
+
     function beep(){
-      // quick, subtle beep using Web Audio API
+      if(state.muted) return;
       try{
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const o = ctx.createOscillator();
@@ -204,12 +210,15 @@
     function updateUI(){
       el.timerVal.textContent = state.intervalSec;
       el.intervalLabel.textContent = state.intervalSec + 's';
-      el.modeLabel.textContent = state.bits + '\u200A-bit';
+      el.modeLabel.textContent = state.bits + ' -bit';
       const left = Math.max(state.deck.length - (state.idx+1), 0);
       el.remaining.textContent = left;
       el.drawCount.textContent = state.called.length;
       el.startStop.textContent = state.running ? `Pause (${state.countdown}s)` : 'Start';
       el.stage.style.outline = state.running ? '3px solid rgba(126, 255, 154, .25)' : 'none';
+      el.autoAdvance.checked = state.autoAdvance;
+      el.mute.checked = state.muted;
+      el.showBinary.checked = state.showBinary;
     }
 
     function renderCalled(){
@@ -217,7 +226,15 @@
       for(const n of state.called){
         const span = document.createElement('span');
         span.className = 'pill';
-        span.textContent = n;
+        if(state.showBinary){
+          const small = document.createElement('small');
+          span.textContent = n;
+          small.textContent = ` (${toBin(n, state.bits)})`;
+          span.appendChild(small);
+        }else{
+          span.textContent = n;
+        }
+        span.title = `Binary: ${toBin(n, state.bits)}`;
         el.called.appendChild(span);
       }
       el.called.scrollTop = el.called.scrollHeight;
@@ -225,7 +242,6 @@
 
     function drawNext(){
       if(state.idx+1 >= state.deck.length){
-        // exhausted — rebuild deck excluding already-called numbers? We'll just reshuffle fresh
         state.deck = makeDeck(state.min, state.max);
         state.idx = -1;
         state.called = [];
@@ -263,8 +279,13 @@
         state.countdown--;
         el.startStop.textContent = `Pause (${state.countdown}s)`;
         if(state.countdown <= 0){
-          drawNext();
+          // Timer event: beep always; draw only if auto-advance is enabled
+          beep();
+          if(state.autoAdvance){
+            drawNext();
+          }
           state.countdown = state.intervalSec;
+          updateUI();
         }
       }, 1000);
     }
@@ -302,20 +323,18 @@
       updateUI();
     });
 
-    el.startStop.addEventListener('click', ()=>{
-      if(state.running) stop(); else start();
-    });
+    el.startStop.addEventListener('click', ()=>{ state.running ? stop() : start(); });
 
     el.nextNow.addEventListener('click', ()=>{
       drawNext();
-      // restart the countdown if running
       if(state.running){ state.countdown = state.intervalSec; updateUI(); }
     });
 
-    el.reset.addEventListener('click', ()=>{
-      stop();
-      reset();
-    });
+    el.reset.addEventListener('click', ()=>{ stop(); reset(); });
+
+    el.autoAdvance.addEventListener('change', (e)=>{ state.autoAdvance = e.target.checked; updateUI(); });
+    el.mute.addEventListener('change', (e)=>{ state.muted = e.target.checked; });
+    el.showBinary.addEventListener('change', (e)=>{ state.showBinary = e.target.checked; renderCalled(); });
 
     // Keyboard shortcuts
     window.addEventListener('keydown', (e)=>{
@@ -326,6 +345,9 @@
       if(e.key === '5'){ setMode(5); }
       if(e.key === '6'){ setMode(6); }
       if(e.key === 'f'){ toggleFullscreen(); }
+      if(e.key.toLowerCase() === 'b'){ state.showBinary = !state.showBinary; renderCalled(); updateUI(); }
+      if(e.key.toLowerCase() === 'm'){ state.muted = !state.muted; updateUI(); }
+      if(e.key.toLowerCase() === 'a'){ state.autoAdvance = !state.autoAdvance; updateUI(); }
     });
 
     function toggleFullscreen(){
