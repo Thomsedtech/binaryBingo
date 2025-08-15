@@ -1,15 +1,8 @@
-# hex-next
-Modular ES Modules version of Flibby Bit. Drop this folder in your GitHub Pages repo at `/hex-next`.
+# hex-next-clickfix
+A sturdier ES Modules build that hardens Start/Reset click handling.
 
-- `index.html` — minimal HTML that loads `js/main.js`
-- `css/` — styles
-- `js/` — modules (no build step)
-  - `skills/` — each practice type
-- `tests/` — open `tests/test.html` in the browser to run smoke tests
-
-## Deploy
-Copy this whole folder to your Pages repo:
-```
-/hex-next/...
-```
-Visit `https://binarybingo.games/hex-next` (or your user site). When ready, rename `/hex-next` to `/hex`.
+## Changes vs. previous scaffold
+- Buttons are explicit `type="button"`.
+- Start/Reset bind `click` **and** `pointerdown`, with delegated fallback on the toolbar.
+- Toolbar uses `z-index:1000` + `isolation:isolate`; game surface adds `padding-bottom:96px` to prevent overlap.
+- Everything stays build-less and Pages-friendly.
