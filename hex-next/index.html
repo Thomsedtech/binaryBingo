@@ -3,72 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flibby Bit Lite — Hex→Binary Practice</title>
-  <style>
-    :root{
-      --bg:#070b16; --panel:#0e1626; --accent:#7dd3fc; --good:#22c55e; --bad:#ef4444; --muted:#94a3b8; --text:#e5e7eb; --glow:#60a5fa;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%; margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; background:radial-gradient(1200px 700px at 60% -10%, #132243 0%, var(--bg) 60%); color:var(--text)}
-    header{display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; padding:12px 16px; background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0)); border-bottom:1px solid rgba(255,255,255,0.06)}
-    .title{font-weight:800; letter-spacing:.3px}
-    .sub{font-size:.9rem; color:var(--muted)}
-    main{max-width:1100px; margin:16px auto; padding:0 16px; display:grid; grid-template-columns: 1fr; gap:16px}
-
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.1)); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,0.25)}
-
-    /* Game surface */
-    .game{position:relative; min-height:560px; border-radius:18px; overflow:hidden; background:
-      radial-gradient(900px 400px at 110% -10%, rgba(80,134,255,.18), transparent 60%),
-      radial-gradient(600px 380px at -10% -20%, rgba(80,255,134,.12), transparent 70%),
-      linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.15));
-      border:1px solid rgba(255,255,255,0.08);
-      scroll-margin-bottom: 24px;
-    }
-    .center{position:absolute; inset:0; display:grid; place-items:center; pointer-events:none}
-    .hex{font-size:5rem; font-weight:900; letter-spacing:1px; color:#eaf2ff; text-shadow:0 6px 30px rgba(0,0,0,.6), 0 0 24px rgba(96,165,250,.35)}
-
-    .answers{position:absolute; left:0; right:0; bottom:14px; display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; padding:14px; z-index:6}
-    @media (min-width: 720px){ .answers{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
-    .ans{padding:14px 12px; border-radius:14px; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.12); color:#f8fafc; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:1.06rem; font-weight:600; cursor:pointer; transition: transform .08s ease, background .2s, border-color .2s; white-space: pre;}
-    .ans:hover{transform:translateY(-2px); background:rgba(255,255,255,.16)}
-    .ans:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-    .ans.correct{background:rgba(34,197,94,.18); border-color:rgba(34,197,94,.55); color:#ecfdf5}
-    .ans.wrong{background:rgba(239,68,68,.18); border-color:rgba(239,68,68,.55); color:#fff1f2}
-
-    .timerBar{position:absolute; top:0; left:0; height:6px; background:linear-gradient(90deg, #34d399, #60a5fa, #f59e0b); width:100%; transform-origin:left; box-shadow:0 0 10px rgba(99,102,241,.6); z-index:8}
-
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.85rem; background:rgba(255,255,255,.12); color:#e5e7eb; padding:2px 6px; border-radius:6px; border:1px solid rgba(255,255,255,.22)}
-    footer{max-width:1100px; margin:12px auto; padding:0 16px 24px; color:#cbd5e1; font-size:.9rem}
-    a{color:#93c5fd}
-
-    /* Canvas layer */
-    #fxCanvas{position:absolute; inset:0; width:100%; height:100%; z-index:1;}
-
-    /* Lives overlay */
-    .livesOverlay{position:absolute; top:10px; left:12px; display:flex; gap:10px; z-index:9; align-items:center}
-    .lifeIcon{width:22px; height:22px; display:grid; place-items:center; font-size:18px; line-height:1; color:#fecaca; text-shadow:0 0 10px rgba(239,68,68,.6); filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
-    .lifeIcon.lost{animation:lifePop .7s ease forwards}
-    @keyframes lifePop{0%{transform:scale(1) translateY(0); opacity:1}30%{transform:scale(1.3)}100%{transform:scale(.2) translateY(40px); opacity:0}}
-
-    /* HUD inside game */
-    .hudOverlay{position:absolute; top:10px; right:10px; z-index:9; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.18); padding:6px 10px; border-radius:10px; font-variant-numeric:tabular-nums; backdrop-filter:blur(4px); color:#eaf2ff}
-    .hudOverlay strong{font-weight:800}
-
-    /* Bottom toolbar (sticky, non-overlapping) */
-    .toolbar{position:sticky; bottom:8px; z-index:5; display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:8px 10px; backdrop-filter:blur(6px)}
-    .toolbar .group{display:flex; align-items:center; gap:6px}
-    .toolbar label{font-size:.85rem; color:#dbeafe}
-    .toolbar select,.toolbar button{background:var(--panel); color:#eaf2ff; border:1px solid rgba(255,255,255,.22); border-radius:10px; padding:8px 10px; font-size:.95rem}
-  </style>
+  <title>Flibby Bit — Hex/Dec/Bin Practice (hex-next)</title>
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
   <header>
     <div>
-      <div class="title">Flibby Bit <span class="sub">Lite</span></div>
-      <div class="sub">Arcade-style hex → binary practice with Beginner mode</div>
+      <div class="title">Flibby Bit <span class="sub">Next</span></div>
+      <div class="sub">Practice translating between Hex, Decimal, and Binary</div>
     </div>
-    <div class="pill">Keys: <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span> to answer • <span class="kbd">R</span> reset</div>
+    <div class="pill">Keys: <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span><span class="kbd">4</span> • <span class="kbd">R</span> reset</div>
   </header>
 
   <main>
@@ -81,13 +25,21 @@
         <span id="livesNumHUD" style="display:none">3</span>
       </div>
       <div class="center">
-        <div class="hex" id="hexLabel">0x0A</div>
-        <div class="sub" id="decimalLabel" style="color:#eaf2ff; opacity:.9">(decimal 10)</div>
+        <div class="hex" id="promptLabel">0x0A</div>
+        <div class="sub" id="subLabel" style="color:#eaf2ff; opacity:.9">(decimal 10)</div>
       </div>
       <div class="answers" id="answers"></div>
     </section>
 
     <div class="toolbar" id="toolbar">
+      <div class="group"><label for="skill">Skill</label>
+        <select id="skill">
+          <option value="hex2bin">Hex → Binary</option>
+          <option value="dec2bin">Decimal → Binary</option>
+          <option value="bin2dec">Binary → Decimal</option>
+        </select>
+      </div>
+
       <div class="group"><label for="mode">Mode</label>
         <select id="mode">
           <option value="beginner">Beginner</option>
@@ -95,6 +47,7 @@
           <option value="advanced">Advanced</option>
         </select>
       </div>
+
       <div class="group"><label for="speed">Speed</label>
         <select id="speed">
           <option value="slow">Relaxed</option>
@@ -102,6 +55,7 @@
           <option value="fast">Fast</option>
         </select>
       </div>
+
       <label class="group" style="gap:6px; color:#dbeafe"><input type="checkbox" id="soundOn" checked /> Sound</label>
       <button id="startBtn">Start</button>
       <button id="resetBtn">Reset</button>
@@ -109,419 +63,9 @@
   </main>
 
   <footer>
-    Teaching tip: Each hex digit maps to 4 bits. Beginner shows 4 bits (1 hex digit). Intermediate still draws from a 6-bit number range but displays answers as 8 bits (2 hex digits). Advanced is full 8 bits.
+    Beginner: 4 bits (0–15). Intermediate: 6-bit range (0–63) but show 8 bits. Advanced: full 8 bits (0–255).
   </footer>
 
-  <script>
-    // ---- Helpers ----
-    const padBits = (n, bits) => n.toString(2).padStart(bits, '0');
-    const hexLabelFixed = (n, hexDigits) => '0x' + n.toString(16).toUpperCase().padStart(hexDigits, '0');
-    const groupBits = (s) => s.replace(/(.{4})/g, '$1 ').trim();
-
-    const lerp = (a,b,t)=> a+(b-a)*t;
-    function randomInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
-
-    function pickDistinct(arr, count, notIncluding){
-      const set = new Set([notIncluding]);
-      const out = [];
-      let guard=0;
-      while(out.length<count && guard<200){
-        guard++;
-        const item = arr[randomInt(0, arr.length-1)];
-        if(!set.has(item)){ set.add(item); out.push(item); }
-      }
-      return out;
-    }
-
-    function generateDistractors(correct, displayBits, rangeMax){
-      const pool = Array.from({length: rangeMax+1}, (_,i)=> padBits(i, displayBits));
-      const candidates = [];
-      for(let i=0;i<=rangeMax;i++){
-        const s = pool[i];
-        if(s===correct) continue;
-        const h = hamming(s, correct);
-        if(h<=2) candidates.push(s);
-      }
-      const d1 = pickDistinct(candidates, 2, correct);
-      const d2 = pickDistinct(pool, 4 - d1.length, correct);
-      return [...d1, ...d2].slice(0,3);
-    }
-
-    function hamming(a,b){ let d=0; for(let i=0;i<a.length;i++){ if(a[i]!==b[i]) d++; } return d; }
-
-    // ---- Mode config ----
-    function modeConfig(mode){
-      if(mode==='beginner') return { bitsRange:4, rangeMax:0xF, hexDigits:1, displayBits:4 };
-      if(mode==='intermediate') return { bitsRange:6, rangeMax:0x3F, hexDigits:2, displayBits:8 };
-      return { bitsRange:8, rangeMax:0xFF, hexDigits:2, displayBits:8 }; // advanced
-    }
-
-    // ---- Game State ----
-    const cfg0 = modeConfig('beginner');
-    const state = {
-      running:false,
-      mode:'beginner',
-      ...cfg0,
-      speed:'normal', // slow, normal, fast
-      timePerQ: 10_000,
-      score:0,
-      streak:0,
-      lives:3,
-      maxLives:3,
-      prevLives:3,
-      soundOn:true,
-      currentN:0,
-      correct: '',
-      answers:[],
-      timerId:null,
-      startedAt:0,
-      remaining:0,
-      // FX (background only)
-      stars:[],
-      canvas:null,
-      ctx:null,
-      w:0,h:0,
-    };
-
-    const el = {
-      game: document.getElementById('game'),
-      score: document.getElementById('scoreHUD'),
-      streak: document.getElementById('streakHUD'),
-      livesNum: document.getElementById('livesNumHUD'),
-      hexLabel: document.getElementById('hexLabel'),
-      decimalLabel: document.getElementById('decimalLabel'),
-      answers: document.getElementById('answers'),
-      timerBar: document.getElementById('timerBar'),
-      startBtn: document.getElementById('startBtn'),
-      resetBtn: document.getElementById('resetBtn'),
-      mode: document.getElementById('mode'),
-      speed: document.getElementById('speed'),
-      canvas: document.getElementById('fxCanvas'),
-      livesOverlay: document.getElementById('livesOverlay'),
-      soundOn: document.getElementById('soundOn'),
-      toolbar: document.getElementById('toolbar'),
-    };
-
-    // ---- UI Bindings ----
-    el.mode.addEventListener('change', ()=>{
-      state.mode = el.mode.value;
-      Object.assign(state, modeConfig(state.mode));
-      if(state.running) nextQuestion(); else preview();
-    });
-
-    el.speed.addEventListener('change', ()=>{
-      state.speed = el.speed.value;
-      calcTimer();
-    });
-
-    el.soundOn.addEventListener('change', ()=>{
-      state.soundOn = el.soundOn.checked;
-      if(state.soundOn) initAudio();
-    });
-
-    el.startBtn.addEventListener('click', ()=> { initAudio(); startGame(); });
-    el.resetBtn.addEventListener('click', ()=> resetGame());
-
-    document.addEventListener('keydown', (e)=>{
-      if(['1','2','3','4'].includes(e.key)){
-        const idx = parseInt(e.key,10)-1; choose(idx);
-      } else if(e.key==='r' || e.key==='R'){ resetGame(); }
-    });
-
-    function calcTimer(){
-      const base = state.mode==='beginner' ? 14_000 : state.mode==='intermediate' ? 11_000 : 9_000;
-      const mult = state.speed==='slow' ? 1.25 : state.speed==='fast' ? 0.8 : 1;
-      state.timePerQ = Math.round(base * mult);
-    }
-
-    function renderHUD(){
-      el.score.textContent = state.score;
-      el.streak.textContent = state.streak;
-      el.livesNum.textContent = state.lives;
-      renderLivesOverlay(true);
-    }
-
-    function preview(){
-      calcTimer();
-      const n = randomInt(0, state.rangeMax);
-      const corr = padBits(n, state.displayBits);
-      const distract = generateDistractors(corr, state.displayBits, state.rangeMax);
-      const all = shuffle([corr, ...distract]);
-      state.currentN = n; state.correct = corr; state.answers = all;
-      paintQuestion();
-      renderLivesOverlay(false);
-    }
-
-    function startGame(){
-      resetGame(true);
-      state.running = true;
-      nextQuestion();
-    }
-
-    function resetGame(keepRunning=false){
-      clearTimer();
-      state.score=0; state.streak=0; state.lives=state.maxLives; state.prevLives=state.maxLives; renderHUD();
-      if(!keepRunning) state.running=false;
-      sfx.start && sfx.start();
-      preview();
-    }
-
-    function clearTimer(){ if(state.timerId){ cancelAnimationFrame(state.timerId); state.timerId=null; } }
-
-    function nextQuestion(){
-      if(state.lives<=0){ gameOver(); return; }
-      calcTimer();
-      const n = randomInt(0, state.rangeMax);
-      state.currentN = n;
-      state.correct = padBits(n, state.displayBits);
-      const distract = generateDistractors(state.correct, state.displayBits, state.rangeMax);
-      state.answers = shuffle([state.correct, ...distract]);
-      paintQuestion();
-      startTimer();
-    }
-
-    function paintQuestion(){
-      el.hexLabel.textContent = hexLabelFixed(state.currentN, state.hexDigits);
-      el.decimalLabel.textContent = `(decimal ${state.currentN})`;
-      el.answers.innerHTML='';
-      state.answers.forEach((ans, i)=>{
-        const b=document.createElement('button');
-        b.className='ans';
-        b.textContent = groupBits(ans);
-        b.setAttribute('data-i', i);
-        b.title = `Press ${i+1}`;
-        b.addEventListener('click', ()=> choose(i));
-        el.answers.appendChild(b);
-      });
-      el.timerBar.style.transform = 'scaleX(1)';
-    }
-
-    function choose(i){
-      if(!state.running) return;
-      const chosen = state.answers[i];
-      const buttons = [...document.querySelectorAll('.ans')];
-      buttons.forEach(b=> b.disabled=true);
-      if(chosen === state.correct){
-        feedback(i, true);
-        const add = 100 + Math.max(0, Math.floor( (state.remaining/state.timePerQ)*100 ));
-        state.score += add;
-        state.streak += 1;
-        sfx.correct && sfx.correct();
-        if(state.streak>0 && state.streak%5===0){
-          flash('Streak +5! Bonus time');
-          sfx.streak && sfx.streak();
-          state.remaining = Math.min(state.timePerQ, state.remaining + 2000);
-        }
-        renderHUD();
-        setTimeout(nextQuestion, 550);
-      } else {
-        feedback(i, false);
-        sfx.wrong && sfx.wrong();
-        state.streak = 0;
-        loseLife();
-        renderHUD();
-        if(state.lives<=0){ setTimeout(gameOver, 650); }
-        else { setTimeout(nextQuestion, 750); }
-      }
-    }
-
-    function loseLife(){
-      state.lives = Math.max(0, state.lives - 1);
-      animateLifeLoss();
-      sfx.life && sfx.life();
-    }
-
-    function feedback(index, ok){
-      const buttons = [...document.querySelectorAll('.ans')];
-      buttons[index].classList.add(ok? 'correct':'wrong');
-      const correctIndex = state.answers.indexOf(state.correct);
-      if(correctIndex!==index){ buttons[correctIndex].classList.add('correct'); }
-    }
-
-    function startTimer(){
-      clearTimer();
-      state.startedAt = performance.now();
-      state.remaining = state.timePerQ;
-      const tick = (now)=>{
-        const dt = now - state.startedAt;
-        state.startedAt = now;
-        state.remaining -= dt;
-        const p = Math.max(0, state.remaining / state.timePerQ);
-        el.timerBar.style.transform = `scaleX(${p})`;
-        if(state.remaining<=0){ timeUp(); }
-        else { state.timerId = requestAnimationFrame(tick); }
-      };
-      state.timerId = requestAnimationFrame(tick);
-    }
-
-    function timeUp(){
-      clearTimer();
-      state.streak = 0;
-      loseLife();
-      renderHUD();
-      flash("Time's up!");
-      sfx.timeout && sfx.timeout();
-      if(state.lives<=0){ gameOver(); }
-      else { nextQuestion(); }
-    }
-
-    function gameOver(){
-      state.running=false; clearTimer();
-      flash(`Game over — score ${state.score}`);
-      sfx.gameover && sfx.gameover();
-    }
-
-    function flash(msg){
-      const div=document.createElement('div');
-      div.textContent=msg;
-      div.style.position='absolute';
-      div.style.left='50%'; div.style.top='18%';
-      div.style.transform='translate(-50%,-50%)';
-      div.style.padding='10px 14px';
-      div.style.borderRadius='12px';
-      div.style.background='rgba(0,0,0,.5)';
-      div.style.border='1px solid rgba(255,255,255,.2)';
-      div.style.backdropFilter='blur(4px)';
-      div.style.boxShadow='0 10px 30px rgba(0,0,0,.35)';
-      document.querySelector('.game').appendChild(div);
-      setTimeout(()=> div.remove(), 1000);
-    }
-
-    function shuffle(a){
-      for(let i=a.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-      }
-      return a;
-    }
-
-    // ---- Background FX: Canvas starfield ----
-    function setupCanvas(){
-      const dpr = Math.min(2, window.devicePixelRatio||1);
-      el.canvas.width = el.canvas.clientWidth * dpr;
-      el.canvas.height = el.canvas.clientHeight * dpr;
-      state.w = el.canvas.width; state.h = el.canvas.height;
-      state.ctx = el.canvas.getContext('2d');
-      state.stars = Array.from({length: 140}, ()=>({
-        x: Math.random()*state.w,
-        y: Math.random()*state.h,
-        z: Math.random()*2+0.5,
-      }));
-      new ResizeObserver(()=>{
-        el.canvas.width = el.canvas.clientWidth * dpr;
-        el.canvas.height = el.canvas.clientHeight * dpr;
-        state.w = el.canvas.width; state.h = el.canvas.height;
-      }).observe(el.canvas);
-      requestAnimationFrame(renderFX);
-    }
-
-    function renderFX(){
-      const ctx = state.ctx; if(!ctx) return; const w=state.w, h=state.h;
-      ctx.clearRect(0,0,w,h);
-      ctx.save();
-      ctx.fillStyle = 'rgba(255,255,255,0.8)';
-      for(const s of state.stars){
-        s.y += s.z*0.6; if(s.y>h) s.y = 0;
-        ctx.globalAlpha = 0.25 + s.z*0.35;
-        ctx.fillRect(s.x, s.y, 1, 1);
-      }
-      ctx.restore();
-      requestAnimationFrame(renderFX);
-    }
-
-    // ---- Lives Overlay ----
-    function renderLivesOverlay(){
-      const cont = el.livesOverlay;
-      cont.innerHTML = '';
-      const total = state.maxLives;
-      for(let i=0;i<total;i++){
-        const d = document.createElement('div');
-        d.className = 'lifeIcon';
-        d.textContent = '❤';
-        if(i >= state.lives){ d.classList.add('lost'); }
-        cont.appendChild(d);
-      }
-      state.prevLives = state.lives;
-    }
-
-    function animateLifeLoss(){
-      const hearts = [...el.livesOverlay.querySelectorAll('.lifeIcon:not(.lost)')];
-      if(!hearts.length) return;
-      const toLose = hearts[hearts.length-1];
-      toLose.classList.add('lost');
-    }
-
-    // ---- Audio (WebAudio) ----
-    function initAudio(){
-      if(state.audio || !state.soundOn) return;
-      try { state.audio = new (window.AudioContext||window.webkitAudioContext)(); }
-      catch(e){ console.warn('Audio init failed', e); }
-    }
-
-    function note(freq=440, dur=0.12, type='sine', vol=0.2){
-      if(!state.audio || !state.soundOn) return;
-      const ctx = state.audio; const t0 = ctx.currentTime;
-      const osc = ctx.createOscillator(); osc.type = type; osc.frequency.setValueAtTime(freq, t0);
-      const gain = ctx.createGain();
-      const envA=0.005, envD=dur*0.4, sus=0.6, rel=dur*0.4;
-      gain.gain.setValueAtTime(0, t0);
-      gain.gain.linearRampToValueAtTime(vol, t0+envA);
-      gain.gain.linearRampToValueAtTime(vol*sus, t0+envA+envD);
-      gain.gain.setTargetAtTime(0, t0+envA+envD+rel, 0.05);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t0);
-      osc.stop(t0 + dur + 0.25);
-    }
-
-    function seq(arr, gap=0.04){
-      if(!state.audio || !state.soundOn) return; let delay=0; for(const [f,d,t,v] of arr){ setTimeout(()=> note(f,d,t,v), delay*1000); delay += (d+gap); } }
-
-    const sfx = {
-      start: ()=> seq([[440,0.08,'sine',0.15],[660,0.08,'sine',0.15]]),
-      correct: ()=> seq([[660,0.07,'triangle',0.18],[880,0.07,'triangle',0.18],[1320,0.09,'triangle',0.18]]),
-      wrong: ()=> seq([[300,0.11,'sawtooth',0.12],[180,0.12,'sawtooth',0.12]]),
-      timeout: ()=> seq([[240,0.12,'sine',0.12],[160,0.14,'sine',0.12]]),
-      life: ()=> seq([[110,0.18,'sine',0.2],[90,0.16,'sine',0.18]]),
-      streak: ()=> seq([[1200,0.05,'square',0.12],[1500,0.08,'square',0.12]]),
-      gameover: ()=> seq([[392,0.12,'triangle',0.16],[330,0.14,'triangle',0.16],[262,0.16,'triangle',0.16]]),
-    };
-
-    // Init canvas
-    setupCanvas();
-
-    // Initial render of a preview question
-    preview();
-
-    // ---------------- Self-tests (non-interactive) ----------------
-    (function runSelfTests(){
-      const errors = [];
-      try {
-        // padBits
-        for(const n of [0,10,15]){ if(padBits(n,4).length!==4) errors.push('padBits 4-bit length failed'); }
-        if(padBits(10,8)!=='00001010') errors.push('padBits 8-bit expected 00001010');
-        // groupBits
-        if(groupBits('00001010')!=='0000 1010') errors.push('groupBits failed for 8-bit value');
-        // hex label per mode
-        const mid = modeConfig('intermediate');
-        if(hexLabelFixed(10, mid.hexDigits)!=='0x0A') errors.push('hexLabelFixed intermediate should be 0x0A');
-        const adv = modeConfig('advanced');
-        if(hexLabelFixed(0xA5, adv.hexDigits)!=='0xA5') errors.push('hexLabelFixed advanced should be 0xA5');
-        // distractors
-        const corr = '00001010';
-        const d = generateDistractors(corr, 8, 0x3F);
-        if(d.length!==3) errors.push('distractors length not 3');
-        if(d.includes(corr)) errors.push('distractors contain correct');
-        if(d.some(x=>x.length!==8)) errors.push('distractor bit-length mismatch');
-        if(new Set(d).size!==d.length) errors.push('distractors not unique');
-      } catch(e){ errors.push('Exception in tests: '+e.message); }
-
-      if(errors.length){
-        console.error('[Self-tests FAILED]', errors);
-        flash('Self-test failed — see console');
-      } else {
-        console.log('[Self-tests PASSED] ✓');
-      }
-    })();
-  </script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
