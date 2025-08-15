@@ -35,8 +35,21 @@ export function init(_engine, { skills }){
   }
 
   // Events
-  el.startBtn.addEventListener('click', ()=> { initAudio(); engine.startGame(); });
-  el.resetBtn.addEventListener('click', ()=> engine.resetGame());
+  const onStart = ()=> { initAudio(); engine.startGame(); };
+  const onReset = ()=> engine.resetGame();
+
+  el.startBtn.addEventListener('click', onStart);
+  el.startBtn.addEventListener('pointerdown', onStart);
+  el.resetBtn.addEventListener('click', onReset);
+  el.resetBtn.addEventListener('pointerdown', onReset);
+
+  document.getElementById('toolbar').addEventListener('click', (e)=>{
+    const t = e.target.closest('button');
+    if(!t) return;
+    if(t.id==='startBtn') onStart();
+    if(t.id==='resetBtn') onReset();
+  });
+
   el.mode.addEventListener('change', ()=> engine.setMode(el.mode.value));
   el.speed.addEventListener('change', ()=> engine.setSpeed(el.speed.value));
   el.skill.addEventListener('change', ()=> engine.setSkill(el.skill.value));

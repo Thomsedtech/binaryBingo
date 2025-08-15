@@ -1,7 +1,5 @@
 // engine.js
 import { modes as MODES } from './modes.js';
-import { generateDistractors } from './distractors.js'; // used by some skills
-import { padBits } from './utils.js';
 import * as ui from './ui.js';
 
 export function createEngine({ skills, modes = MODES, sfx }){

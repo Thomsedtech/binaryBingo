@@ -10,7 +10,7 @@ main{max-width:1100px; margin:16px auto; padding:0 16px; display:grid; grid-temp
 .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.1)); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,0.25)}
 
 /* Game surface */
-.game{position:relative; min-height:560px; border-radius:18px; overflow:hidden; background:
+.game{position:relative; min-height:560px; border-radius:18px; overflow:hidden; padding-bottom:96px; background:
   radial-gradient(900px 400px at 110% -10%, rgba(80,134,255,.18), transparent 60%),
   radial-gradient(600px 380px at -10% -20%, rgba(80,255,134,.12), transparent 70%),
   linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.15));
@@ -48,7 +48,7 @@ a{color:#93c5fd}
 .hudOverlay strong{font-weight:800}
 
 /* Bottom toolbar (sticky) */
-.toolbar{position:sticky; bottom:8px; z-index:5; display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:8px 10px; backdrop-filter:blur(6px)}
+.toolbar{position:sticky; bottom:8px; z-index:1000; isolation:isolate; pointer-events:auto; display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:8px 10px; backdrop-filter:blur(6px)}
 .toolbar .group{display:flex; align-items:center; gap:6px}
 .toolbar label{font-size:.85rem; color:#dbeafe}
 .toolbar select,.toolbar button{background:var(--panel); color:#eaf2ff; border:1px solid rgba(255,255,255,.22); border-radius:10px; padding:8px 10px; font-size:.95rem}

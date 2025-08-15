@@ -5,7 +5,7 @@ import { hex2bin } from './skills/hex2bin.js';
 import { dec2bin } from './skills/dec2bin.js';
 import { bin2dec } from './skills/bin2dec.js';
 import * as ui from './ui.js';
-import { sfx, initAudio, setSoundEnabled } from './audio.js';
+import { sfx } from './audio.js';
 
 const skills = { hex2bin, dec2bin, bin2dec };
 const engine = createEngine({ skills, modes, sfx });
